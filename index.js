@@ -32,6 +32,20 @@ app.get('/autenticar', async function(req, res){
   res.render('autenticar');
 })
 
+app.get('/cadastrar',async function(req, res){
+  res.render('cadastrar');
+})
+
+app.post('/cadastrarr',async function(req, res){
+  const usuarioo = await usuario.create(req.body)
+  res.json(usuarioo);
+})
+
+app.get('/listar',async function(req, res){
+  const usuarioo = await usuario.findAll()
+  res.json(usuarioo);
+})
+
 app.get('/', async function(req, res){
   res.render("home")
 })
@@ -45,7 +59,7 @@ app.post('/logar', (req, res) => {
   if(req.body.user === 'mel' && req.body.password === '123'){
     const id = 1;
     const token = jwt.sign({ id }, process.env.SECRET, {
-      expiresIn: 3600 // expires in 1h
+      expiresIn: 3600 // expiras in 1h
     });
 
     res.cookie('token', token, { httpOnly: true });
@@ -63,3 +77,4 @@ app.post('/deslogar', function(req, res) {
 app.listen(3000, function() {
   console.log('App de Exemplo escutando na porta 3000!')
 });
+
