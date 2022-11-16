@@ -3,6 +3,7 @@ require("dotenv-safe").config();
 const jwt = require('jsonwebtoken');
 var { expressjwt: expressJWT } = require("express-jwt");
 const cors = require('cors');
+const criptografia = require('./criptografia');
 
 var cookieParser = require('cookie-parser')
 
@@ -37,7 +38,12 @@ app.get('/cadastrar',async function(req, res){
 })
 
 app.post('/cadastrarr',async function(req, res){
-  const usuarioo = await usuario.create(req.body)
+  const cripto = criptografia.encrypt(req.body.senha);
+  const usuarioo = await usuario.create({
+    nome: req.body.nome,
+    usuarioo: req.body.usuarioo,
+    senha: cripto
+  })
   res.json(usuarioo);
 })
 
@@ -55,11 +61,14 @@ app.get('/sobre', function(req, res) {
 })
 
 
-app.post('/logar', (req, res) => {
-  if(req.body.user === 'mel' && req.body.password === '123'){
+app.post('/logar', async (req, res) => {
+  const users = await usuario.findOne({ where: { usuarioo: req.body.usuarioo }});
+  const cripto = criptografia.decrypt(users.senha);
+  if(req.body.usuarioo === users.usuarioo && req.body.senha === cripto){
+
     const id = 1;
     const token = jwt.sign({ id }, process.env.SECRET, {
-      expiresIn: 3600 // expiras in 1h
+      expiresIn: 3600 // expires in 1 hour
     });
 
     res.cookie('token', token, { httpOnly: true });
